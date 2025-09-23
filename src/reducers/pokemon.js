@@ -3,23 +3,20 @@ const SET_ERROR = 'pokedex/pokemon/SET_ERROR';
 
 const initialState = {
   pokemon: null,
-  error: null,
+  error: null
 };
 
-export default function reducer(
-  state = initialState,
-  action = {}
-) {
+export default function reducer(state = initialState, action = {}) {
   switch (action.type) {
     case SET_POKEMON:
       return {
         ...state,
-        pokemon: action.payload,
+        pokemon: action.payload
       };
     case SET_ERROR:
       return {
         ...state,
-        error: action.payload,
+        error: action.payload
       };
     default:
       return state;
