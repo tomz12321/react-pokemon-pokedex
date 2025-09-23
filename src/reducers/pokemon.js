@@ -1,4 +1,3 @@
-import { push } from 'connected-react-router';
 const SET_POKEMON = 'pokedex/pokemon/SET_POKEMON';
 const SET_ERROR = 'pokedex/pokemon/SET_ERROR';
 
@@ -35,17 +34,20 @@ const setError = (error) => {
   return { type: SET_ERROR, payload: error };
 };
 
-export const loadPokemon = (name) => {
+export const loadPokemon = (name, navigate) => {
   return (dispatch) => {
     fetch(`https://pokeapi.co/api/v2/pokemon/${name}`)
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) throw new Error('Not found');
+        return response.json();
+      })
       .then((pokemon) => {
         dispatch(setPokemon(pokemon));
-        dispatch(push(`/pokemon/${name}`));
+        if (navigate) navigate(`/pokemon/${name}`);
       })
       .catch((error) => {
-        dispatch(setError(error));
-        dispatch(push('/not-found'));
+        dispatch(setError(error.message || 'Error'));
+        if (navigate) navigate('/not-found');
       });
   };
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './App.css';
 import { Welcome } from './components/Welcome';
 import { useDispatch } from 'react-redux';
@@ -13,15 +13,15 @@ function App() {
   const navigate = useNavigate();
 
   return (
-    <div className="center">
-      <div className="pokedex">
+    <div className='center'>
+      <div className='pokedex'>
         <Routes>
-          <Route path="/not-found" element={<PokemonNotFound />} />
-          <Route path="/pokemon/:pokemonName" element={<Pokemon />} />
-          <Route path="*" element={<Welcome />} />
+          <Route path='/not-found' element={<PokemonNotFound />} />
+          <Route path='/pokemon/:pokemonName' element={<Pokemon />} />
+          <Route path='*' element={<Welcome />} />
         </Routes>
 
-        <div className="center">
+        <div className='center'>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -31,12 +31,10 @@ function App() {
             }}
           >
             <input
-              onChange={(e) =>
-                setName(e.currentTarget.value)
-              }
-              placeholder="Enter a pokemon name.."
+              onChange={(e) => setName(e.currentTarget.value)}
+              placeholder='Enter a pokemon name..'
             />
-            <button type="submit">Search</button>
+            <button type='submit'>Search</button>
           </form>
         </div>
       </div>
