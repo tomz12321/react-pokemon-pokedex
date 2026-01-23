@@ -13,32 +13,49 @@ function App() {
   const navigate = useNavigate();
 
   return (
-    <div className='center'>
-      <div className='pokedex'>
-        <Routes>
-          <Route path='/not-found' element={<PokemonNotFound />} />
-          <Route path='/pokemon/:pokemonName' element={<Pokemon />} />
-          <Route path='*' element={<Welcome />} />
-        </Routes>
+    <>
+      {/* HUD Corner Elements */}
+      <div className='hud-corner top-left'></div>
+      <div className='hud-corner top-right'></div>
+      <div className='hud-corner bottom-left'></div>
+      <div className='hud-corner bottom-right'></div>
 
-        <div className='center'>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (name.trim()) {
-                dispatch(loadPokemon(name.trim().toLowerCase(), navigate));
-              }
-            }}
-          >
-            <input
-              onChange={(e) => setName(e.currentTarget.value)}
-              placeholder='Enter a pokemon name..'
-            />
-            <button type='submit'>Search</button>
-          </form>
+      <div className='center'>
+        <div className='pokedex'>
+          {/* Header */}
+          <div className='pokedex-header'>
+            <h1 className='pokedex-title'>POKÉDEX</h1>
+            <p className='pokedex-subtitle'>Neural Interface v3.0</p>
+          </div>
+
+          {/* Routes */}
+          <Routes>
+            <Route path='/not-found' element={<PokemonNotFound />} />
+            <Route path='/pokemon/:pokemonName' element={<Pokemon />} />
+            <Route path='*' element={<Welcome />} />
+          </Routes>
+
+          {/* Search Form */}
+          <div className='center'>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (name.trim()) {
+                  dispatch(loadPokemon(name.trim().toLowerCase(), navigate));
+                }
+              }}
+            >
+              <input
+                onChange={(e) => setName(e.currentTarget.value)}
+                placeholder='Enter Pokemon designation...'
+                value={name}
+              />
+              <button type='submit'>SCAN</button>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
