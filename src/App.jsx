@@ -6,6 +6,8 @@ import { loadPokemon } from './reducers/pokemon';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { PokemonNotFound } from './components/PokemonNotFound';
 import { Pokemon } from './components/Pokemon';
+import { PurchasingAgentPage } from './pages/PurchasingAgentPage';
+import { Link } from 'react-router-dom';
 
 function App() {
   const [name, setName] = useState('');
@@ -26,11 +28,17 @@ function App() {
           <div className='pokedex-header'>
             <h1 className='pokedex-title'>POKÉDEX</h1>
             <p className='pokedex-subtitle'>Neural Interface v3.0</p>
+            <div style={{ marginTop: '10px' }}>
+              <Link to="/purchasing-agent" style={{ color: 'var(--neon-cyan)', textDecoration: 'none', fontSize: '0.9rem', borderBottom: '1px dashed var(--neon-cyan)' }}>
+                [ ACCESS PURCHASING AGENT ]
+              </Link>
+            </div>
           </div>
 
           {/* Routes */}
           <Routes>
             <Route path='/not-found' element={<PokemonNotFound />} />
+            <Route path='/purchasing-agent' element={<PurchasingAgentPage />} />
             <Route path='/pokemon/:pokemonName' element={<Pokemon />} />
             <Route path='*' element={<Welcome />} />
           </Routes>
