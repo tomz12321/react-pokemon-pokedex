@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import { Welcome } from './components/Welcome';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { loadPokemon } from './reducers/pokemon';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { PokemonNotFound } from './components/PokemonNotFound';
@@ -13,6 +13,10 @@ function App() {
   const [name, setName] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const currentPokemon = useSelector((state) => state.pokemon.pokemon);
+  const ALLOWED_IDS = [25, 149, 445, 448];
+  const showPurchasingAgent = currentPokemon && ALLOWED_IDS.includes(currentPokemon.id);
 
   return (
     <>
@@ -28,11 +32,13 @@ function App() {
           <div className='pokedex-header'>
             <h1 className='pokedex-title'>POKÉDEX</h1>
             <p className='pokedex-subtitle'>Neural Interface v3.0</p>
-            <div style={{ marginTop: '10px' }}>
-              <Link to="/purchasing-agent" style={{ color: 'var(--neon-cyan)', textDecoration: 'none', fontSize: '0.9rem', borderBottom: '1px dashed var(--neon-cyan)' }}>
-                [ ACCESS PURCHASING AGENT ]
-              </Link>
-            </div>
+            {showPurchasingAgent && (
+              <div style={{ marginTop: '10px' }}>
+                <Link to="/purchasing-agent" style={{ color: 'var(--neon-cyan)', textDecoration: 'none', fontSize: '0.9rem', borderBottom: '1px dashed var(--neon-cyan)' }}>
+                  [ ACCESS PURCHASING AGENT ]
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Routes */}

@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-We aim to introduce a "Purchasing Agent" (Daigou) service to the Pokemon Pokedex app. This feature allows users to request Pokemon purchases from specific Pokemon Centers when ordering in bulk (10+ items). The payment will be handled securely via TapPay (Credit Card).
+We aim to introduce a "Purchasing Agent" (委託收服) service to the Pokemon Pokedex app. This feature allows users to request Pokemon purchases from specific Pokemon Centers when ordering in bulk (10+ items). The payment will be handled securely via TapPay (Credit Card).
 
 ## 2. Service Scope
 
@@ -71,6 +71,7 @@ We aim to introduce a "Purchasing Agent" (Daigou) service to the Pokemon Pokedex
 - Use `TPDirect.card.setup` for UI fields.
 - Use `TPDirect.card.getPrime` to retrieve the prime token on form submission.
 - **Real-time Rendering**: The payment form must support real-time rendering. When users select Pokemon, quantity, and location, the payment amount should be calculated and displayed immediately.
+- **Card Number Masking**: When the card number field is rendered, mask digits 7-12 for security (e.g., display as `1234 56** **** 7890`).
 - **Mock Backend**: Since we don't have a real backend, we will `console.log` the transaction details (Prime, Amount, Order Info) and show a success alert.
 
 ## 5. UI/UX Draft
