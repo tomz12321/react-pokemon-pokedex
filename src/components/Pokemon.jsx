@@ -1,22 +1,43 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { loadPokemon } from '../reducers/pokemon';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useParams, useNavigate } from 'react-router-dom';
+import {
+  fetchPokemon,
+  selectPokemonByName,
+  selectStatus,
+  selectFailedName
+} from '../reducers/pokemon';
 
 export const Pokemon = () => {
   const { pokemonName } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const pokemon = useSelector((state) => state.pokemon.pokemon);
 
+  // 使用 memoized selector 根據名稱取得資料
+  const selectPokemon = useMemo(
+    () => selectPokemonByName(pokemonName),
+    [pokemonName]
+  );
+  const pokemon = useSelector(selectPokemon);
+  const status = useSelector(selectStatus);
+  const failedName = useSelector(selectFailedName);
+
+  // 當 pokemonName 變動或快取缺漏時觸發抓取
   useEffect(() => {
-    if (pokemonName && pokemonName !== pokemon?.name) {
-      dispatch(loadPokemon(pokemonName, navigate));
+    if (pokemonName && !pokemon && status !== 'loading') {
+      dispatch(fetchPokemon(pokemonName));
     }
-  }, [pokemonName, dispatch, navigate, pokemon?.name]);
+  }, [pokemonName, pokemon, status, dispatch]);
 
-  if (!pokemon) {
+  // 導頁邏輯放在元件內，根據 thunk 結果決定
+  useEffect(() => {
+    if (status === 'failed' && failedName) {
+      navigate(`/not-found?name=${encodeURIComponent(failedName)}`);
+    }
+  }, [status, failedName, navigate]);
+
+  // Loading 狀態
+  if (status === 'loading' || !pokemon) {
     return (
       <div className='loading'>
         <div className='loading-spinner'></div>
@@ -41,12 +62,29 @@ export const Pokemon = () => {
         </span>
       </h2>
 
-      {pokemon.sprites?.front_default && (
+      {pokemon.sprites?.front_default ? (
         <img
           className='pokemon-image'
           src={pokemon.sprites.front_default}
           alt={pokemon.name}
         />
+      ) : (
+        <div
+          className='pokemon-image-placeholder'
+          style={{
+            width: '150px',
+            height: '150px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(0, 255, 255, 0.1)',
+            borderRadius: '50%',
+            margin: '20px auto',
+            border: '2px dashed var(--border)'
+          }}
+        >
+          <span style={{ color: 'var(--secondary)' }}>No Image</span>
+        </div>
       )}
 
       {pokemon.types && (
