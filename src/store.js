@@ -1,20 +1,11 @@
-import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
-import thunk from 'redux-thunk';
-import pokemon from './reducers/pokemon';
+import { configureStore } from '@reduxjs/toolkit';
+import pokemonReducer from './reducers/pokemon';
 
-const rootReducer = combineReducers({
-  pokemon
+const store = configureStore({
+  reducer: {
+    pokemon: pokemonReducer
+  },
+  devTools: process.env.NODE_ENV !== 'production'
 });
 
-const middlewares = [thunk];
-
-const composeEnhancers =
-  (typeof window !== 'undefined' &&
-    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) ||
-  compose;
-
-const store = createStore(
-  rootReducer,
-  composeEnhancers(applyMiddleware(...middlewares))
-);
 export default store;
