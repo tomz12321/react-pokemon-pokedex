@@ -33,9 +33,10 @@ body {
   font-family: 'Exo 2', sans-serif;
   background: linear-gradient(135deg, #0F0F23 0%, #1A1A2E 50%, #16213E 100%);
   color: var(--text);
-  min-height: 100vh;
+  height: 100vh;
   position: relative;
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* Scanline Effect Overlay */
@@ -82,11 +83,12 @@ body::after {
 .center {
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+  align-items: flex-start;
+  height: 100vh;
   padding: 20px;
   position: relative;
   z-index: 1;
+  overflow-y: auto;
 }
 
 .pokedex {
@@ -97,6 +99,9 @@ body::after {
   padding: 40px;
   max-width: 800px;
   width: 100%;
+  margin: auto 0;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
   box-shadow: 
     var(--glow-primary),
     inset 0 0 20px rgba(124, 58, 237, 0.1);
@@ -491,8 +496,15 @@ button:active {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .center {
+    min-height: 100vh;
+    padding: 15px;
+  }
+  
   .pokedex {
     padding: 30px 20px;
+    max-height: calc(100vh - 30px);
+    overflow-y: auto;
   }
   
   .pokedex-title {
@@ -513,6 +525,27 @@ button:active {
   
   .hud-corner {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .center {
+    padding: 10px;
+  }
+  
+  .pokedex {
+    padding: 20px 15px;
+    max-height: calc(100vh - 20px);
+  }
+  
+  .pokedex-title {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+  }
+  
+  .pokemon-image {
+    width: 150px;
+    height: 150px;
   }
 }
 
