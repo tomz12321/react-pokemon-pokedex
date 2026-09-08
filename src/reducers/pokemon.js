@@ -1,92 +1,91 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-// Async thunk - 專注於資料抓取，不處理導頁
+export const normalizePokemonName = (name = '') => name.trim().toLowerCase();
+const getEntry = (entries, name) => Object.hasOwn(entries, name) ? entries[name] : undefined;
+const idleRequest = { status: 'idle', error: null };
+
 export const fetchPokemon = createAsyncThunk(
   'pokemon/fetchPokemon',
-  async (name, { rejectWithValue }) => {
+  async (name, { rejectWithValue, signal }) => {
+    const query = normalizePokemonName(name);
+    const controller = new AbortController();
+    const abort = () => controller.abort();
+    const timeout = setTimeout(abort, 15000);
+    signal.addEventListener('abort', abort, { once: true });
+
     try {
       const response = await fetch(
-        `https://pokeapi.co/api/v2/pokemon/${name.trim().toLowerCase()}`
+        `https://pokeapi.co/api/v2/pokemon/${encodeURIComponent(query)}`,
+        { signal: controller.signal }
       );
       if (!response.ok) {
-        throw new Error('Not found');
+        return rejectWithValue({ kind: response.status === 404 ? 'not-found' : 'server' });
       }
       const data = await response.json();
-      return { name: name.trim().toLowerCase(), data };
+      if (!data || typeof data.name !== 'string' || typeof data.id !== 'number') {
+        return rejectWithValue({ kind: 'server' });
+      }
+      return data;
     } catch (error) {
       return rejectWithValue({
-        name: name.trim().toLowerCase(),
-        message: error.message || 'Error fetching Pokemon'
+        kind: controller.signal.aborted ? 'timeout' : error instanceof SyntaxError ? 'server' : 'network'
       });
+    } finally {
+      clearTimeout(timeout);
+      signal.removeEventListener('abort', abort);
+    }
+  },
+  {
+    // StrictMode 與重複提交共用同一請求；已有資料時沿用快取。
+    condition: (name, { getState }) => {
+      const query = normalizePokemonName(name);
+      const { byName, requestsByName } = getState().pokemon;
+      return Boolean(query) && !getEntry(byName, query) &&
+        getEntry(requestsByName, query)?.status !== 'loading';
     }
   }
 );
 
-const initialState = {
-  // 依名稱建立快取索引
-  byName: {},
-  // 當前查詢的名稱
-  currentName: null,
-  // 狀態: 'idle' | 'loading' | 'succeeded' | 'failed'
-  status: 'idle',
-  // 錯誤資訊
-  error: null,
-  // 失敗的查詢名稱（用於 PokemonNotFound）
-  failedName: null
-};
-
 const pokemonSlice = createSlice({
   name: 'pokemon',
-  initialState,
-  reducers: {
-    // 重置狀態
-    resetStatus: (state) => {
-      state.status = 'idle';
-      state.error = null;
-      state.failedName = null;
-    },
-    // 清除錯誤
-    clearError: (state) => {
-      state.error = null;
-      state.failedName = null;
-    }
+  initialState: {
+    byName: Object.create(null),
+    requestsByName: Object.create(null)
   },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchPokemon.pending, (state, action) => {
-        state.status = 'loading';
-        state.currentName = action.meta.arg.trim().toLowerCase();
-        state.error = null;
-        state.failedName = null;
+        state.requestsByName[normalizePokemonName(action.meta.arg)] = {
+          status: 'loading', error: null, requestId: action.meta.requestId
+        };
       })
       .addCase(fetchPokemon.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.byName[action.payload.name] = action.payload.data;
-        state.currentName = action.payload.name;
+        const name = normalizePokemonName(action.meta.arg);
+        const request = getEntry(state.requestsByName, name);
+        if (request?.requestId !== action.meta.requestId) return;
+
+        const pokemon = action.payload;
+        state.byName[name] = pokemon;
+        state.byName[pokemon.name] = pokemon;
+        state.byName[String(pokemon.id)] = pokemon;
+        request.status = 'succeeded';
+        request.error = null;
       })
       .addCase(fetchPokemon.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload?.message || 'Unknown error';
-        state.failedName = action.payload?.name || state.currentName;
+        const request = getEntry(state.requestsByName, normalizePokemonName(action.meta.arg));
+        if (request?.requestId !== action.meta.requestId) return;
+
+        request.status = action.meta.aborted ? 'idle' : 'failed';
+        request.error = action.meta.aborted ? null : action.payload || { kind: 'network' };
       });
   }
 });
 
-export const { resetStatus, clearError } = pokemonSlice.actions;
+export const selectPokemonByName = (name) => (state) =>
+  getEntry(state.pokemon.byName, normalizePokemonName(name));
 
-// Selectors
-export const selectCurrentPokemon = (state) => {
-  const { currentName, byName } = state.pokemon;
-  return currentName ? byName[currentName] : null;
-};
-
-export const selectPokemonByName = (name) => (state) => {
-  return name ? state.pokemon.byName[name.toLowerCase()] : null;
-};
-
-export const selectStatus = (state) => state.pokemon.status;
-export const selectError = (state) => state.pokemon.error;
-export const selectFailedName = (state) => state.pokemon.failedName;
-export const selectCurrentName = (state) => state.pokemon.currentName;
+export const selectRequestByName = (name) => (state) =>
+  getEntry(state.pokemon.requestsByName, normalizePokemonName(name)) || idleRequest;
 
 export default pokemonSlice.reducer;

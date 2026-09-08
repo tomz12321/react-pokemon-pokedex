@@ -1,68 +1,46 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Pokédex · v0.2.0
 
-## Available Scripts
+以 React 18、Vite、React Router 與 Redux Toolkit 建立的寶可夢圖鑑。輸入英文名稱或圖鑑編號，查看圖片、屬性、能力值、身高、體重與特性。
 
-In the project directory, you can run:
+## 本機開發
 
-### `yarn start`
+使用 Node.js 22 或以上與 Yarn Classic（1.x）。
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```sh
+yarn install
+yarn dev
+```
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+開發伺服器預設使用 `http://localhost:5173`，並自動開啟瀏覽器。資料來自 [PokéAPI](https://pokeapi.co/)，圖片與字體亦需要網路；不需要 API key 或環境變數。
 
-### `yarn test`
+## 指令
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+| 指令 | 用途 |
+| --- | --- |
+| `yarn dev` | 啟動 Vite 開發伺服器 |
+| `yarn test` | 執行 Node.js 內建 test runner 的請求與快取回歸測試 |
+| `yarn build` | 建置正式版本至 `dist/` |
+| `yarn preview` | 預覽已建置的正式版本 |
+| `yarn start` | 執行 `npx vite preview`；需先建置 |
 
-### `yarn build`
+部署靜態網站時，需將前端路由回退至根目錄的 `index.html`，以支援直接開啟或重新整理 `/pokemon/pikachu` 等網址。
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## v0.2.0 的改善
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+- 搜尋列位於結果上方，使用單一頁面捲動，手機版不再產生整個螢幕高度的多餘空白。
+- 首頁提供可點選的寶可夢範例、清楚的欄位標籤與輸入說明。
+- 依網址呈現載入、資料或錯誤，支援重新整理、上一頁與下一頁。
+- 分開處理查無資料、網路失敗、服務異常與 15 秒逾時；重試會重新請求，修改搜尋會選取原輸入。
+- 依名稱與編號共用快取，避免 StrictMode 重複請求及遲到回應影響其他查詢。
+- 官方插畫失敗時降級至 sprite，再降級至文字 placeholder。
+- 詳情頁使用屬性識別色與能力值橫條。橫條尺度會顯示於畫面，取該寶可夢最高能力值與 100 的較大值。
+- 保留深色與紫色主題，減少常駐動畫，加入鍵盤焦點、狀態通知及減少動態效果支援。
+- 頁尾版本直接引用 `package.json`。
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 驗證
 
-### `yarn eject`
+`yarn test` 使用模擬 HTTP 回應，不依賴線上 API，涵蓋快取、重複請求、錯誤分類、重試、逾時與取消。它不包含瀏覽器視覺或輔助科技驗證。
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+修改互動後，另外檢查首頁範例、空白輸入、大小寫與空白正規化、名稱／編號查詢、錯誤後修改及重試、直接開啟網址、重新整理與歷史導覽。UI 檢查至少涵蓋 320px、390px、768px 與桌機寬度，並確認沒有水平溢出或巢狀捲動。
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+共用的開發代理指南見 [AGENTS.md](AGENTS.md)；[CLAUDE.md](CLAUDE.md) 透過 `@AGENTS.md` 引入。

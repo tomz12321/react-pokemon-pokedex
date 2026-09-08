@@ -1,79 +1,37 @@
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { clearError } from '../reducers/pokemon';
+import { useSearchParams } from 'react-router-dom';
+import { Icon } from './Icon';
 
-export const PokemonNotFound = () => {
+const messages = {
+  'not-found': { title: 'No Pokémon found', description: 'Check the English spelling, or try a Pokédex number such as 25.' },
+  network: { title: 'We couldn’t connect', description: 'Check your internet connection, then try your search again.' },
+  server: { title: 'The Pokédex is taking a break', description: 'The data service is temporarily unavailable. Please try again in a moment.' },
+  timeout: { title: 'That took a little too long', description: 'The connection timed out. Your search is saved — give it another try.' }
+};
+
+export const PokemonNotFound = ({ name, error, onRetry, onEditSearch }) => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  // 從 search params 取得失敗的 Pokemon 名稱
-  const failedName = searchParams.get('name') || 'Unknown';
-
-  const handleRetry = () => {
-    dispatch(clearError());
-    navigate('/');
-  };
+  const query = name || searchParams.get('name');
+  const kind = error?.kind || 'not-found';
+  const message = messages[kind] || messages.network;
 
   return (
-    <div
-      className='not-found-container'
-      style={{ textAlign: 'center', padding: '20px' }}
-    >
-      <div
-        style={{
-          fontSize: '4rem',
-          marginBottom: '20px',
-          filter: 'grayscale(1)',
-          opacity: 0.5
-        }}
-      >
-        ❓
+    <section className='empty-state error-state' aria-labelledby='error-heading'>
+      <div className='state-symbol' aria-hidden='true'><Icon name={kind === 'not-found' ? 'search' : 'warning'} /></div>
+      <div role='alert' aria-atomic='true'>
+        <p className='eyebrow'>LET’S TRY THAT AGAIN</p>
+        <h2 id='error-heading'>{message.title}</h2>
+        {query && <p className='error-query'>Search: <strong>“{query}”</strong></p>}
+        <p className='state-description'>{message.description}</p>
       </div>
-      <h1
-        style={{
-          color: 'var(--error, #ff6b6b)',
-          fontSize: '1.5rem',
-          marginBottom: '10px'
-        }}
-      >
-        POKEMON NOT FOUND
-      </h1>
-      <h2
-        style={{
-          color: 'var(--neon-cyan, #00ffff)',
-          textTransform: 'uppercase',
-          fontSize: '2rem',
-          marginBottom: '20px',
-          wordBreak: 'break-word'
-        }}
-      >
-        "{failedName}"
-      </h2>
-      <p
-        style={{
-          color: 'var(--secondary, #888)',
-          marginBottom: '30px'
-        }}
-      >
-        The specified Pokemon could not be found in the database.
-      </p>
-      <button
-        onClick={handleRetry}
-        style={{
-          padding: '12px 30px',
-          fontSize: '1rem',
-          cursor: 'pointer',
-          background:
-            'linear-gradient(135deg, var(--primary, #1a1a2e), var(--secondary, #16213e))',
-          border: '1px solid var(--neon-cyan, #00ffff)',
-          color: 'var(--neon-cyan, #00ffff)',
-          borderRadius: '8px',
-          transition: 'all 0.3s ease'
-        }}
-      >
-        TRY AGAIN
-      </button>
-    </div>
+      <div className='state-actions'>
+        {kind !== 'not-found' && onRetry && (
+          <button className='button button-primary' type='button' onClick={onRetry}>
+            <Icon name='retry' />Try again
+          </button>
+        )}
+        <button className={`button ${kind === 'not-found' ? 'button-primary' : 'button-secondary'}`}
+          type='button' onClick={onEditSearch}>Edit search<Icon name='arrow' /></button>
+      </div>
+    </section>
   );
 };
