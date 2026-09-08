@@ -1,6 +1,7 @@
 {
   "name": "react-pokemon-pokedex",
-  "version": "0.1.0",
+  "version": "0.2.0",
+  "type": "module",
   "private": true,
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
@@ -16,7 +17,7 @@
     "build": "vite build",
     "start": "npx vite preview",
     "preview": "vite preview",
-    "test": "echo 'No test runner configured with Vite yet'"
+    "test": "node --test tests/*.test.mjs"
   },
   "eslintConfig": {
     "extends": "react-app"
