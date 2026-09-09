@@ -7,7 +7,7 @@
 使用 Node.js 22 或以上與 Yarn Classic（1.x）。
 
 ```sh
-yarn install
+yarn install --frozen-lockfile
 yarn dev
 ```
 
@@ -24,6 +24,27 @@ yarn dev
 | `yarn start` | 執行 `npx vite preview`；需先建置 |
 
 部署靜態網站時，需將前端路由回退至根目錄的 `index.html`，以支援直接開啟或重新整理 `/pokemon/pikachu` 等網址。
+
+## 瀏覽器相容性資料維護
+
+`yarn.lock` 納入版本控制，固定團隊與部署環境使用的依賴版本。初次安裝或拉取更新後，執行 `yarn install --frozen-lockfile`。
+
+若出現 `Browserslist: browsers data (caniuse-lite) is ... old`，在專案根目錄執行：
+
+```sh
+npx --yes update-browserslist-db@latest
+```
+
+[官方更新工具](https://github.com/browserslist/update-db#readme) 會偵測 `yarn.lock`，透過 Yarn 更新瀏覽器資料；這裡的 `npx` 僅用於執行工具，依賴安裝仍使用 Yarn。
+
+若仍出現 `[baseline-browser-mapping] The data in this module is over two months old`，Yarn Classic 可能保留了舊的間接依賴。使用 `yarn.lock` 中目前的相依範圍更新，再移除暫時新增的直接依賴：
+
+```sh
+yarn upgrade 'baseline-browser-mapping@^2.8.3'
+yarn remove baseline-browser-mapping
+```
+
+`^2.8.3` 對應目前 Browserslist 的相依範圍；日後若升級 Browserslist，需先核對 `yarn.lock` 的 `baseline-browser-mapping@...` 條目。更新後執行 `yarn browserslist` 與 `yarn build`，確認兩則資料過期警告已消失，並提交 `yarn.lock`。資料會隨時間過期，之後出現警告時需再次更新；不要以忽略警告的環境變數取代更新。
 
 ## v0.2.0 的改善
 

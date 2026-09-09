@@ -11,7 +11,7 @@
 
 ## 開發指令
 
-在專案根目錄執行。工作目錄現有 `yarn.lock` 為 Yarn v1 格式，依賴操作優先沿用 Yarn。
+在專案根目錄執行。`yarn.lock` 為 Yarn v1 格式並納入版本控制，依賴操作優先沿用 Yarn。初次安裝、拉取依賴更新或 CI 安裝時使用 `yarn install --frozen-lockfile`。
 
 | 指令 | 用途 |
 | --- | --- |
@@ -23,6 +23,8 @@
 | `yarn test` | 使用 Node.js 內建 test runner 執行 `tests/*.test.mjs` 的請求與快取回歸測試 |
 
 實際指令與建置設定以 `package.json`、`vite.config.js` 為準。開發與測試使用 Node.js 22 或以上。目前沒有可用的 lint script；`eslintConfig` 留有 `react-app` 設定，不代表已配置可執行的 lint 工具。版本以 `package.json` 為準，頁尾直接引用此版本。
+
+瀏覽器資料過期時，依 [README 的維護步驟](README.md#瀏覽器相容性資料維護) 更新 `caniuse-lite` 與 `baseline-browser-mapping`。`npx --yes update-browserslist-db@latest` 會偵測 Yarn 鎖定檔；若 Baseline 仍保留舊版，需針對鎖定檔中的間接依賴範圍更新。完成後以 `yarn browserslist` 與 `yarn build` 確認警告消失，並提交 `yarn.lock`；不要手動修改鎖定檔或以環境變數隱藏資料過期警告。
 
 ## 目前使用的檔案
 
